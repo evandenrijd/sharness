@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/ .
 
+MY_ARGZERO=$0
 if test -n "${ZSH_VERSION-}"
 then
 	# shellcheck disable=SC2296
@@ -25,7 +26,7 @@ then
 	emulate sh -o POSIX_ARGZERO
 else
 	# shellcheck disable=SC3028
-	SHARNESS_SOURCE=${BASH_SOURCE-$0}
+	SHARNESS_SOURCE=${BASH_SOURCE-$MY_ARGZERO}
 fi
 
 # Public: Current version of Sharness.
@@ -36,7 +37,7 @@ export SHARNESS_VERSION
 # Public: The file extension for tests.  By default, it is set to "t".
 export SHARNESS_TEST_EXTENSION
 
-: "${SHARNESS_TEST_DIRECTORY:=$(dirname "$0")}"
+: "${SHARNESS_TEST_DIRECTORY:=$(dirname "$MY_ARGZERO")}"
 # ensure that SHARNESS_TEST_DIRECTORY is an absolute path so that it
 # is valid even if the current working directory is changed
 SHARNESS_TEST_DIRECTORY=$(cd "$SHARNESS_TEST_DIRECTORY" && pwd) || exit 1
@@ -74,7 +75,7 @@ done,*)
 	;;
 *' --tee '*|*' --verbose-log '*)
 	mkdir -p "$SHARNESS_TEST_OUTDIR/test-results"
-	BASE="$SHARNESS_TEST_OUTDIR/test-results/$(basename "$0" ".$SHARNESS_TEST_EXTENSION")"
+	BASE="$SHARNESS_TEST_OUTDIR/test-results/$(basename "$MY_ARGZERO" ".$SHARNESS_TEST_EXTENSION")"
 
 	# Make this filename available to the sub-process in case it is using
 	# --verbose-log.
@@ -85,7 +86,7 @@ done,*)
 	# from any previous runs.
 	: >"$SHARNESS_TEST_TEE_OUTPUT_FILE"
 
-	(SHARNESS_TEST_TEE_STARTED="done" ${SHELL_PATH} "$0" "$@" 2>&1;
+	(SHARNESS_TEST_TEE_STARTED="done" ${SHELL_PATH} "$MY_ARGZERO" "$@" 2>&1;
 	 echo $? >"$BASE.exit") | tee -a "$SHARNESS_TEST_TEE_OUTPUT_FILE"
 	test "$(cat "$BASE.exit")" = 0
 	exit
@@ -216,7 +217,7 @@ then
 	then
 		: Executed by a Bash version supporting BASH_XTRACEFD.  Good.
 	else
-		echo >&2 "warning: ignoring -x; '$0' is untraceable without BASH_XTRACEFD"
+		echo >&2 "warning: ignoring -x; '$MY_ARGZERO' is untraceable without BASH_XTRACEFD"
 		trace=
 	fi
 fi
@@ -671,7 +672,7 @@ PATH="$SHARNESS_BUILD_DIRECTORY:$PATH"
 export PATH
 
 # Public: Path to test script currently executed.
-SHARNESS_TEST_FILE="$0"
+SHARNESS_TEST_FILE="$MY_ARGZERO"
 export SHARNESS_TEST_FILE
 
 # Prepare test area.
